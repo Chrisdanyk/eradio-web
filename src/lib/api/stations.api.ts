@@ -39,5 +39,22 @@ export const stationsApi = {
   getById: async (id: number): Promise<RadioStation> => {
     return apiClient.get<RadioStation>(`/api/stations/${id}`);
   },
+
+  /**
+   * Save stations to database
+   * Required before adding to favorites
+   */
+  save: async (stationUuids: string[]): Promise<void> => {
+    return apiClient.post<void>("/api/stations/save", { stationUuids });
+  },
+
+  /**
+   * Get saved stations (stations in database)
+   */
+  getSaved: async (page = 0, size = 20): Promise<PageResponse<RadioStation>> => {
+    return apiClient.get<PageResponse<RadioStation>>(
+      `/api/stations/saved?page=${page}&size=${size}`,
+    );
+  },
 };
 
