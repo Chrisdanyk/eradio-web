@@ -40,7 +40,7 @@ export function useAuth() {
         });
         return response;
       } catch (err) {
-        const errorMessage = extractErrorMessage(err);
+        const errorMessage = extractErrorMessage(err, "register");
         setError(errorMessage);
         throw err;
       } finally {
@@ -67,7 +67,7 @@ export function useAuth() {
         });
         return response;
       } catch (err) {
-        const errorMessage = extractErrorMessage(err);
+        const errorMessage = extractErrorMessage(err, "login");
         setError(errorMessage);
         throw err;
       } finally {

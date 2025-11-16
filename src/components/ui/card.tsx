@@ -16,16 +16,17 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = "default", children, ...props }, ref) => {
     const variants = {
-      default: "bg-white border border-gray-200",
-      elevated: "bg-white shadow-lg",
-      outlined: "bg-white border-2 border-gray-300",
+      default: "bg-card text-card-foreground border",
+      elevated: "bg-card text-card-foreground border shadow-sm",
+      outlined: "bg-card text-card-foreground border-2",
     };
 
     return (
       <div
         ref={ref}
+        data-slot="card"
         className={cn(
-          "rounded-xl p-6",
+          "flex flex-col gap-6 rounded-xl py-6",
           variants[variant],
           className,
         )}
