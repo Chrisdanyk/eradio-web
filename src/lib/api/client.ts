@@ -98,14 +98,34 @@ class ApiClient {
         return undefined as T;
       }
 
-      const data = await response.json();
+      let data: any;
+      try {
+        data = await response.json();
+      } catch {
+        // If response is not JSON, create a generic error
+        if (!response.ok) {
+          throw new ApiException(
+            `HTTP error! status: ${response.status}`,
+            response.status,
+          );
+        }
+        return undefined as T;
+      }
 
       // Handle error responses
       if (!response.ok) {
+        // Try to extract error message from various possible response formats
+        const errorMessage =
+          data.message ||
+          data.error ||
+          data.errorMessage ||
+          (typeof data === "string" ? data : null) ||
+          `HTTP error! status: ${response.status}`;
+
         throw new ApiException(
-          data.message || `HTTP error! status: ${response.status}`,
+          errorMessage,
           response.status,
-          data.errors,
+          data.errors || data.validationErrors,
         );
       }
 
