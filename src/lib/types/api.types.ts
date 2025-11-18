@@ -86,6 +86,13 @@ export interface PageResponse<T> {
   last: boolean;
 }
 
+// ==================== Recommendations Types ====================
+
+export interface RecommendationsResponse {
+  recommendations: RadioStation[];
+  reason: string;
+}
+
 // ==================== API Error Types ====================
 
 export interface ApiError {

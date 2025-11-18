@@ -2,6 +2,7 @@
 
 import { StationSearch } from "~/components/stations/station-search";
 import { FavoritesList } from "~/components/favorites/favorites-list";
+import { RecommendationsSection } from "~/components/recommendations/recommendations-section";
 import { useAuthStore } from "~/lib/store/auth-store";
 import { usePlayerStore } from "~/lib/store/player-store";
 import { useEffect, useState } from "react";
@@ -103,7 +104,11 @@ export default function SearchPage() {
       <main className="pt-24 pb-32 px-6">
         {/* Content */}
         {activeTab === "search" ? (
-          <StationSearch onStationSelect={handleStationSelect} />
+          <>
+            <RecommendationsSection onStationSelect={handleStationSelect} />
+            <div className="h-px bg-border/50 my-12 max-w-4xl mx-auto" />
+            <StationSearch onStationSelect={handleStationSelect} />
+          </>
         ) : (
           <FavoritesList
             onStationSelect={handleStationSelect}
