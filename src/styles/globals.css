@@ -156,4 +156,29 @@
     @apply transition-all duration-200 ease-out;
     @apply focus:bg-muted/30 focus:border-primary/50 focus:ring-2 focus:ring-primary/20;
   }
+
+  /* Force black background for buttons */
+  .btn-black {
+    background-color: #000000 !important;
+    color: #ffffff !important;
+  }
+
+  .btn-black:hover:not(:disabled) {
+    background-color: rgba(0, 0, 0, 0.9) !important;
+    color: #ffffff !important;
+  }
+
+  /* Skeleton animation */
+  @keyframes skeleton-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .skeleton {
+    animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
 }

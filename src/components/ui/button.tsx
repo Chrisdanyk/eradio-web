@@ -11,9 +11,10 @@ import { type ButtonHTMLAttributes, forwardRef } from "react";
 import { cn } from "~/lib/utils/cn";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
-  size?: "sm" | "md" | "lg";
+  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "black";
+  size?: "sm" | "md" | "lg" | "icon" | "icon-sm" | "icon-lg";
   isLoading?: boolean;
+  loadingText?: string;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -23,6 +24,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = "primary",
       size = "md",
       isLoading = false,
+      loadingText,
       disabled,
       children,
       ...props
@@ -43,6 +45,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
       danger:
         "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+      black:
+        "btn-black",
     };
 
     const sizes = {
@@ -88,7 +92,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            Loading...
+            {loadingText || "Loading..."}
           </>
         ) : (
           children

@@ -28,6 +28,19 @@ export interface AuthResponse {
   email: string;
 }
 
+export interface UserProfileResponse {
+  id: number;
+  username: string;
+  email: string;
+  fullName: string;
+  role: string;
+}
+
+export interface UpdateProfileRequest {
+  fullName: string;
+  email: string;
+}
+
 // ==================== Station Types ====================
 
 export interface RadioStation {
