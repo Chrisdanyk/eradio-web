@@ -8,12 +8,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
-import { Radio, Heart } from "lucide-react";
+import { Radio, Heart, User } from "lucide-react";
 
 export default function SearchPage() {
   const router = useRouter();
   const { isAuthenticated, user, isLoading, initialize, logout } = useAuthStore();
-  const { setCurrentStation, showPlayer } = usePlayerStore();
+  const { setCurrentStation, setStations, showPlayer } = usePlayerStore();
   const [activeTab, setActiveTab] = useState<"search" | "favorites">("search");
 
   useEffect(() => {
@@ -81,9 +81,17 @@ export default function SearchPage() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden sm:block text-sm text-foreground/80">
-              {user?.username}
-            </span>
+            <Link
+              href="/profile"
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity group"
+            >
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-all ring-2 ring-primary/20 group-hover:ring-primary/40">
+                <User className="w-5 h-5 text-primary" />
+              </div>
+              <span className="hidden sm:block text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">
+                {user?.username}
+              </span>
+            </Link>
             <Button variant="ghost" size="sm" onClick={logout} className="h-9 text-foreground/80 hover:text-foreground">
               Logout
             </Button>

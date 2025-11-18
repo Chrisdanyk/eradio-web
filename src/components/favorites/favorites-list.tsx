@@ -11,6 +11,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useFavorites } from "~/lib/hooks/use-favorites";
 import { useFavoritesStore } from "~/lib/store/favorites-store";
+import { usePlayerStore } from "~/lib/store/player-store";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import Skeleton from "~/components/ui/skeleton";
@@ -26,6 +27,7 @@ interface FavoritesListProps {
 export function FavoritesList({ onStationSelect, isActive = true }: FavoritesListProps) {
   const { getFavorites, isLoading, error } = useFavorites();
   const { refreshTrigger } = useFavoritesStore();
+  const { setStations: setPlayerStations } = usePlayerStore();
   const [favorites, setFavorites] = useState<RadioStation[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
@@ -226,7 +228,11 @@ export function FavoritesList({ onStationSelect, isActive = true }: FavoritesLis
               <FavoriteStationCard
                 key={station.id}
                 station={station}
-                onClick={() => onStationSelect?.(station)}
+                onClick={() => {
+                  // Set stations list for navigation
+                  setPlayerStations(filteredFavorites);
+                  onStationSelect?.(station);
+                }}
                 onFavoriteToggle={(isFavorite) =>
                   handleFavoriteToggle(station.id, isFavorite)
                 }

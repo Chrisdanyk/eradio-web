@@ -23,6 +23,7 @@ import {
 } from "~/lib/utils/stations-cache";
 import { Search, Play, Radio, Globe } from "lucide-react";
 import type { RadioStation, StationSearchParams } from "~/lib/types/api.types";
+import { usePlayerStore } from "~/lib/store/player-store";
 
 interface StationSearchProps {
   onStationSelect?: (station: RadioStation) => void;
@@ -30,6 +31,7 @@ interface StationSearchProps {
 
 export function StationSearch({ onStationSelect }: StationSearchProps) {
   const { searchStations, isLoading } = useStations();
+  const { setStations: setPlayerStations } = usePlayerStore();
   const [query, setQuery] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [stations, setStations] = useState<RadioStation[]>([]);
@@ -207,9 +209,11 @@ export function StationSearch({ onStationSelect }: StationSearchProps) {
 
   const handleStationClick = useCallback(
     (station: RadioStation) => {
+      // Set stations list for navigation
+      setPlayerStations(stations);
       onStationSelect?.(station);
     },
-    [onStationSelect],
+    [onStationSelect, stations, setPlayerStations],
   );
 
   return (
