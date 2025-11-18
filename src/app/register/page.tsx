@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "~/lib/hooks/use-auth";
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { PasswordInput } from "~/components/ui/password-input";
+import { ActionButton } from "~/components/ui/auth-button";
 import { Radio } from "lucide-react";
 
 export default function RegisterPage() {
@@ -38,7 +39,7 @@ export default function RegisterPage() {
         password: password,
       });
       router.push("/search");
-    } catch (err) {
+    } catch {
       // Error is already handled by useAuth hook and will be displayed
       // No need to set local error state unless it's a validation error
     }
@@ -92,14 +93,12 @@ export default function RegisterPage() {
               <label htmlFor="password" className="text-sm font-medium">
                 Password
               </label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="apple-input"
               />
             </div>
 
@@ -107,30 +106,25 @@ export default function RegisterPage() {
               <label htmlFor="confirmPassword" className="text-sm font-medium">
                 Confirm Password
               </label>
-              <Input
+              <PasswordInput
                 id="confirmPassword"
-                type="password"
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="apple-input"
               />
             </div>
 
-            {(error || localError) && (
+            {(error ?? localError) && (
               <p className="text-sm font-medium" style={{ color: '#dc2626' }}>
-                {error || localError}
+                {error ?? localError}
               </p>
             )}
 
-            <Button
-              type="submit"
-              className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 rounded-xl"
-              disabled={isLoading}
-            >
-              {isLoading ? "Creating account..." : "Create account"}
-            </Button>
+            <ActionButton isLoading={isLoading} loadingText="Creating account...">
+              Create account
+            </ActionButton>
+
           </form>
 
           <div className="mt-8 text-center text-sm">

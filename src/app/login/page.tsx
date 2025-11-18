@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "~/lib/hooks/use-auth";
-import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { PasswordInput } from "~/components/ui/password-input";
+import { ActionButton } from "~/components/ui/auth-button";
 import { Radio } from "lucide-react";
 
 export default function LoginPage() {
@@ -24,7 +25,7 @@ export default function LoginPage() {
     try {
       await login({ username: username.trim(), password });
       router.push("/search");
-    } catch (err) {
+    } catch {
       // Error is already handled by useAuth hook and will be displayed
       // No need to set local error state
     }
@@ -63,14 +64,12 @@ export default function LoginPage() {
               <label htmlFor="password" className="text-sm font-medium">
                 Password
               </label>
-              <Input
+              <PasswordInput
                 id="password"
-                type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="apple-input"
               />
             </div>
 
@@ -80,13 +79,9 @@ export default function LoginPage() {
               </p>
             )}
 
-            <Button
-              type="submit"
-              className="w-full h-12 text-base font-semibold bg-primary hover:bg-primary/90 rounded-xl"
-              disabled={isLoading}
-            >
-              {isLoading ? "Signing in..." : "Sign in"}
-            </Button>
+            <ActionButton isLoading={isLoading} loadingText="Signing in...">
+              Sign in
+            </ActionButton>
           </form>
 
           <div className="mt-8 text-center text-sm">
