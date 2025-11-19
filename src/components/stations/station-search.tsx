@@ -12,16 +12,15 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useStations } from "~/lib/hooks/use-stations";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
 import Skeleton from "~/components/ui/skeleton";
-import { FavoriteButton } from "./favorite-button";
+import { StationCard } from "./station-card";
 import {
   getCachedStations,
   setCachedStations,
   appendCachedStations,
   hasValidCache,
 } from "~/lib/utils/stations-cache";
-import { Search, Play, Radio, Globe } from "lucide-react";
+import { Search } from "lucide-react";
 import type { RadioStation, StationSearchParams } from "~/lib/types/api.types";
 import { usePlayerStore } from "~/lib/store/player-store";
 
@@ -241,20 +240,6 @@ export function StationSearch({ onStationSelect }: StationSearchProps) {
       </div>
 
       <div className="max-w-4xl mx-auto">
-        {/* Results count - only show when not loading and stations are found */}
-        {!isLoading && stations.length > 0 && (
-          <p className="text-sm text-muted-foreground mb-6 px-2 text-center">
-            {pagination.totalElements > 0
-              ? `Found ${pagination.totalElements} ${pagination.totalElements === 1 ? "station" : "stations"}`
-              : `Showing ${stations.length} ${stations.length === 1 ? "station" : "stations"}`}
-            {debouncedSearchTerm && (
-              <span className="text-xs text-muted-foreground/70 ml-2">
-                for &quot;{debouncedSearchTerm}&quot;
-              </span>
-            )}
-          </p>
-        )}
-
         {isLoading && stations.length === 0 ? (
           <div className="space-y-3">
             {Array.from({ length: 5 }).map((_, index) => (
@@ -294,6 +279,7 @@ export function StationSearch({ onStationSelect }: StationSearchProps) {
                       ),
                     );
                   }}
+                  showGlobeIcon={true}
                 />
               ))}
             </div>
@@ -348,94 +334,3 @@ export function StationSearch({ onStationSelect }: StationSearchProps) {
 }
 
 
-/**
- * Station Card Component
- *
- * Displays a single station with its information.
- * Matches v0 design.
- */
-const StationCard = ({
-  station,
-  onClick,
-  onFavoriteToggle,
-}: {
-  station: RadioStation;
-  onClick: () => void;
-  onFavoriteToggle?: (isFavorite: boolean) => void;
-}) => {
-  const [imageError, setImageError] = useState(false);
-
-  return (
-    <div
-      className="group bg-card rounded-2xl p-6 border border-border/50 hover-lift hover:border-primary/30 transition-smooth cursor-pointer relative overflow-hidden"
-      onClick={onClick}
-    >
-      {/* Animated background gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-      <div className="relative flex items-center gap-5">
-        <div className="relative flex-shrink-0">
-          <div className="w-20 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-            {station.favicon && !imageError ? (
-              <img
-                src={station.favicon}
-                alt={station.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Radio className="w-10 h-10 text-primary" />
-              </div>
-            )}
-          </div>
-          {/* Pulse animation indicator */}
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full opacity-0 group-hover:opacity-100 animate-pulse" />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold mb-2 truncate text-foreground group-hover:text-primary transition-colors">
-            {station.name}
-          </h3>
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            {station.country && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 text-muted-foreground">
-                <Globe className="w-3 h-3" />
-                {station.country}
-              </span>
-            )}
-            {station.language && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 text-muted-foreground">
-                {station.language}
-              </span>
-            )}
-            {station.bitrate && (
-              <span className="text-xs text-muted-foreground">
-                {station.bitrate} kbps
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div onClick={(e) => e.stopPropagation()}>
-            <FavoriteButton
-              station={station}
-              onToggle={onFavoriteToggle}
-            />
-          </div>
-          <Button
-            size="icon"
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.stopPropagation();
-              onClick();
-            }}
-            className="w-10 h-10 rounded-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-110"
-          >
-            <Play className="w-4 h-4 fill-current" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};

@@ -1,6 +1,6 @@
 "use client";
 
-import { StationSearch } from "~/components/stations/station-search";
+import { FavoritesList } from "~/components/favorites/favorites-list";
 import { Navbar } from "~/components/layout/navbar";
 import { useAuthStore } from "~/lib/store/auth-store";
 import { usePlayerStore } from "~/lib/store/player-store";
@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { RadioStation } from "~/lib/types/api.types";
 
-export default function SearchPage() {
+export default function FavoritesPage() {
   const router = useRouter();
   const { isAuthenticated, isLoading, initialize } = useAuthStore();
   const { setCurrentStation, showPlayer } = usePlayerStore();
@@ -50,7 +50,10 @@ export default function SearchPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="pt-24 pb-32 px-6">
-        <StationSearch onStationSelect={handleStationSelect} />
+        <FavoritesList
+          onStationSelect={handleStationSelect}
+          isActive={true}
+        />
       </main>
     </div>
   );

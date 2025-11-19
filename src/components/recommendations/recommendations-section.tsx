@@ -10,13 +10,15 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { recommendationsApi } from "~/lib/api/recommendations.api";
-import { FavoriteButton } from "~/components/stations/favorite-button";
+import { StationCard } from "~/components/stations/station-card";
 import { Button } from "~/components/ui/button";
+import { ActionButton } from "~/components/ui/auth-button";
 import Skeleton from "~/components/ui/skeleton";
-import { Radio, Play, Sparkles, RefreshCw, AlertCircle } from "lucide-react";
+import { Sparkles, RefreshCw, AlertCircle, Search } from "lucide-react";
 import type { RadioStation } from "~/lib/types/api.types";
 import { usePlayerStore } from "~/lib/store/player-store";
 import { extractErrorMessage } from "~/lib/utils/error-handler";
+import Link from "next/link";
 
 interface RecommendationsSectionProps {
   onStationSelect?: (station: RadioStation) => void;
@@ -106,19 +108,18 @@ export function RecommendationsSection({ onStationSelect }: RecommendationsSecti
   if (recommendations.length === 0 && !isLoading) {
     return (
       <div className="max-w-4xl mx-auto mb-16">
-        <div className="flex items-center gap-3 mb-6">
-          <Sparkles className="w-6 h-6 text-primary" />
-          <h2 className="text-3xl font-semibold">Recommendations for You</h2>
-        </div>
-        <div className="bg-card rounded-2xl p-8 border border-border/50 text-center">
-          <Sparkles className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground mb-4">
-            Add some stations to your favorites to get personalized recommendations!
+        <div className="text-center py-12">
+          <Sparkles className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+          <h2 className="text-3xl font-semibold mb-3">Start Discovering</h2>
+          <p className="text-muted-foreground mb-8 max-w-md mx-auto text-lg">
+            Add some stations to your favorites to get personalized AI-powered recommendations tailored to your taste!
           </p>
-          <Button onClick={fetchRecommendations} variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
+          <Link href="/search">
+            <ActionButton fullWidth={false}>
+              <Search className="w-4 h-4 mr-2" />
+              Browse Stations
+            </ActionButton>
+          </Link>
         </div>
       </div>
     );
@@ -143,11 +144,6 @@ export function RecommendationsSection({ onStationSelect }: RecommendationsSecti
         </Button>
       </div>
 
-      {reason && (
-        <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 mb-6">
-          <p className="text-sm text-foreground/80">{reason}</p>
-        </div>
-      )}
 
       <div className="space-y-3">
         {recommendations.map((station) => (
@@ -164,6 +160,8 @@ export function RecommendationsSection({ onStationSelect }: RecommendationsSecti
                 ),
               );
             }}
+            showTags={true}
+            showGlobeIcon={false}
           />
         ))}
       </div>
@@ -188,90 +186,4 @@ export function RecommendationsSection({ onStationSelect }: RecommendationsSecti
   );
 }
 
-/**
- * Station Card Component
- *
- * Displays a single recommended station.
- */
-const StationCard = ({
-  station,
-  onClick,
-  onFavoriteToggle,
-}: {
-  station: RadioStation;
-  onClick: () => void;
-  onFavoriteToggle?: (isFavorite: boolean) => void;
-}) => {
-  const [imageError, setImageError] = useState(false);
-
-  return (
-    <div
-      className="group bg-card rounded-2xl p-6 border border-border/50 hover-lift hover:border-primary/30 transition-smooth cursor-pointer relative overflow-hidden"
-      onClick={onClick}
-    >
-      {/* Animated background gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-      <div className="relative flex items-center gap-5">
-        <div className="relative flex-shrink-0">
-          <div className="w-20 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
-            {station.favicon && !imageError ? (
-              <img
-                src={station.favicon}
-                alt={station.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Radio className="w-10 h-10 text-primary" />
-              </div>
-            )}
-          </div>
-          {/* Pulse animation indicator */}
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full opacity-0 group-hover:opacity-100 animate-pulse" />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold mb-2 truncate text-foreground group-hover:text-primary transition-colors">
-            {station.name}
-          </h3>
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            {station.country && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 text-muted-foreground">
-                {station.country}
-              </span>
-            )}
-            {station.language && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 text-muted-foreground">
-                {station.language}
-              </span>
-            )}
-            {station.tags && (
-              <span className="text-xs text-muted-foreground truncate max-w-xs">
-                {station.tags.split(",").slice(0, 2).join(", ")}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div onClick={(e) => e.stopPropagation()}>
-            <FavoriteButton station={station} onToggle={onFavoriteToggle} />
-          </div>
-          <Button
-            size="icon"
-            onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-              e.stopPropagation();
-              onClick();
-            }}
-            className="w-10 h-10 rounded-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-110"
-          >
-            <Play className="w-4 h-4 fill-current" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
 

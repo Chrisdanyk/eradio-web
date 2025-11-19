@@ -38,7 +38,7 @@ export default function RegisterPage() {
         email: email.trim(),
         password: password,
       });
-      router.push("/search");
+      router.push("/recommendations");
     } catch {
       // Error is already handled by useAuth hook and will be displayed
       // No need to set local error state unless it's a validation error
