@@ -12,8 +12,9 @@
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { FavoriteButton } from "~/components/stations/favorite-button";
-import { Radio, Play, Globe } from "lucide-react";
+import { Radio, Play, Pause, MapPin, Activity } from "lucide-react";
 import type { RadioStation } from "~/lib/types/api.types";
+import { usePlayerStore } from "~/lib/store/player-store";
 
 export interface StationCardProps {
   station: RadioStation;
@@ -37,23 +38,28 @@ export function StationCard({
   showGlobeIcon = true,
 }: StationCardProps) {
   const [imageError, setImageError] = useState(false);
+  const { currentStation, isPlaying } = usePlayerStore();
+  const isCurrentlyPlaying =
+    currentStation &&
+    (currentStation.stationUuid ?? currentStation.id) ===
+      (station.stationUuid ?? station.id) &&
+    isPlaying;
 
   return (
     <div
-      className="group bg-card rounded-2xl p-6 border border-border/50 hover-lift hover:border-primary/30 transition-smooth cursor-pointer relative overflow-hidden"
+      className="group relative bg-card hover:bg-accent/50 border rounded-2xl p-6 transition-all duration-300 hover:shadow-xl hover:scale-[1.01] hover:-translate-y-1 cursor-pointer"
       onClick={onClick}
     >
-      {/* Animated background gradient on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-      <div className="relative flex items-center gap-5">
+      <div className="relative flex items-center gap-6">
         <div className="relative flex-shrink-0">
-          <div className="w-20 h-20 rounded-xl overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow duration-300">
+          <div className="h-20 w-20 rounded-xl overflow-hidden bg-muted shadow-md ring-2 ring-border group-hover:ring-primary/50 transition-all duration-300">
             {station.favicon && !imageError ? (
               <img
                 src={station.favicon}
                 alt={station.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                className="h-full w-full object-cover"
                 onError={() => setImageError(true)}
               />
             ) : (
@@ -62,41 +68,43 @@ export function StationCard({
               </div>
             )}
           </div>
-          {/* Pulse animation indicator */}
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full opacity-0 group-hover:opacity-100 animate-pulse" />
+          <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-green-500 ring-2 ring-background animate-pulse" />
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold mb-2 truncate text-foreground group-hover:text-primary transition-colors">
+          <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
             {station.name}
           </h3>
-          <div className="flex flex-wrap items-center gap-3 text-sm">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
             {station.country && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 text-muted-foreground">
-                {showGlobeIcon && <Globe className="w-3 h-3" />}
-                {station.country}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4" />
+                <span>{station.country}</span>
+              </div>
             )}
             {station.language && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-muted/50 text-muted-foreground">
-                {station.language}
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded-md bg-muted text-xs font-medium">
+                  {station.language}
+                </span>
+              </div>
             )}
             {showTags && station.tags ? (
-              <span className="text-xs text-muted-foreground truncate max-w-xs">
+              <span className="text-xs truncate max-w-xs">
                 {station.tags.split(",").slice(0, 2).join(", ")}
               </span>
             ) : station.bitrate ? (
-              <span className="text-xs text-muted-foreground">
-                {station.bitrate} kbps
-              </span>
+              <div className="flex items-center gap-1.5">
+                <Activity className="h-4 w-4" />
+                <span className="font-medium">{station.bitrate} kbps</span>
+              </div>
             ) : null}
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2">
           <div onClick={(e) => e.stopPropagation()}>
-            <FavoriteButton station={station} onToggle={onFavoriteToggle} />
+            <FavoriteButton station={station} onToggle={onFavoriteToggle} size="sm" />
           </div>
           <Button
             size="icon"
@@ -104,9 +112,15 @@ export function StationCard({
               e.stopPropagation();
               onClick();
             }}
-            className="w-10 h-10 rounded-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-110"
+            className={`h-12 w-12 rounded-full shadow-lg bg-primary hover:bg-primary/90 hover:scale-110 transition-all duration-300 ${
+              isCurrentlyPlaying ? "ring-2 ring-primary ring-offset-2" : ""
+            }`}
           >
-            <Play className="w-4 h-4 fill-current" />
+            {isCurrentlyPlaying ? (
+              <Pause className="h-5 w-5 fill-current" />
+            ) : (
+              <Play className="h-5 w-5 fill-current" />
+            )}
           </Button>
         </div>
       </div>

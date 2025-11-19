@@ -1,24 +1,48 @@
-/**
- * Navbar Component
- *
- * Reusable navigation bar component for authenticated pages.
- * Displays navigation links, user profile, and logout functionality.
- *
- * SOLID: Single Responsibility - Only handles navigation UI
- */
-
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "~/components/ui/button";
-import { Radio, User } from "lucide-react";
+import { ThemeToggle } from "~/components/ui/theme-toggle";
+import { Radio } from "lucide-react";
 import { useAuthStore } from "~/lib/store/auth-store";
+import { authApi } from "~/lib/api/auth.api";
+import type { UserProfileResponse } from "~/lib/types/api.types";
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuthStore();
+  const [profile, setProfile] = useState<UserProfileResponse | null>(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const data = await authApi.getProfile();
+        setProfile(data);
+      } catch (error) {
+        // Silently fail - will use username initials as fallback
+      }
+    };
+    if (user) {
+      void loadProfile();
+    }
+  }, [user]);
+
+  const getInitials = () => {
+    if (profile?.fullName) {
+      const names = profile.fullName.trim().split(/\s+/);
+      if (names.length >= 2) {
+        return (names[0]![0] + names[names.length - 1]![0]).toUpperCase();
+      }
+      return profile.fullName.substring(0, 2).toUpperCase();
+    }
+    if (user?.username) {
+      return user.username.substring(0, 2).toUpperCase();
+    }
+    return "U";
+  };
 
   const isActive = (path: string) => {
     return pathname === path;
@@ -53,16 +77,16 @@ export function Navbar() {
           </nav>
         </div>
         <div className="flex items-center gap-3">
+          <ThemeToggle />
           <Link
             href="/profile"
             className="flex items-center gap-2 hover:opacity-80 transition-opacity group"
           >
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-all ring-2 ring-primary/20 group-hover:ring-primary/40">
-              <User className="w-5 h-5 text-primary" />
+              <span className="text-sm font-semibold text-primary">
+                {getInitials()}
+              </span>
             </div>
-            <span className="hidden sm:block text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">
-              {user?.username}
-            </span>
           </Link>
           <Button variant="ghost" size="sm" onClick={logout} className="h-9 text-foreground/80 hover:text-foreground">
             Logout

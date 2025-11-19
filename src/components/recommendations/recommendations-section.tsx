@@ -160,8 +160,7 @@ export function RecommendationsSection({ onStationSelect }: RecommendationsSecti
                 ),
               );
             }}
-            showTags={true}
-            showGlobeIcon={false}
+            showGlobeIcon={true}
           />
         ))}
       </div>

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "~/lib/hooks/use-auth";
+import { usePlayerStore } from "~/lib/store/player-store";
 import { Input } from "~/components/ui/input";
 import { PasswordInput } from "~/components/ui/password-input";
 import { ActionButton } from "~/components/ui/auth-button";
@@ -17,6 +18,11 @@ export default function RegisterPage() {
   const [localError, setLocalError] = useState("");
   const { register, isLoading, error } = useAuth();
   const router = useRouter();
+  const { stopAudio } = usePlayerStore();
+
+  useEffect(() => {
+    stopAudio();
+  }, [stopAudio]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

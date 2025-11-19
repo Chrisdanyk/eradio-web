@@ -3,6 +3,7 @@ import "~/styles/globals.css";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import { AuthProvider } from "~/components/providers/auth-provider";
+import { ThemeProvider } from "~/components/providers/theme-provider";
 import { PlayerContainer } from "~/components/player/player-container";
 
 export const metadata: Metadata = {
@@ -20,12 +21,19 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable} dark`}>
+    <html lang="en" className={geist.variable} suppressHydrationWarning>
       <body>
-        <AuthProvider>
-          {children}
-          <PlayerContainer />
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            {children}
+            <PlayerContainer />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
