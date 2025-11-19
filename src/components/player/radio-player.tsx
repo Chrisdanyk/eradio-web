@@ -11,7 +11,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "~/components/ui/button";
-import { Play, Pause, Volume2, VolumeX, X, Waves, ChevronLeft, ChevronRight } from "lucide-react";
+import { FavoriteButton } from "~/components/stations/favorite-button";
+import { Play, Pause, Volume2, VolumeX, X, Waves, SkipBack, SkipForward } from "lucide-react";
 import type { RadioStation } from "~/lib/types/api.types";
 import { usePlayerStore } from "~/lib/store/player-store";
 
@@ -22,7 +23,7 @@ interface RadioPlayerProps {
 
 export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { stations, setCurrentStation } = usePlayerStore();
+  const { stations, setCurrentStation, setIsPlaying: setStoreIsPlaying, isPlaying: storeIsPlaying } = usePlayerStore();
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,6 +68,7 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
           try {
             await audio.play();
             setIsPlaying(true);
+            setStoreIsPlaying(true);
             setIsLoading(false);
             setError(null);
             resolve(true);
@@ -128,7 +130,15 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
 
   // Update audio source when station changes
   useEffect(() => {
-    if (!station || !audioRef.current) return;
+    if (!station || !audioRef.current) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = "";
+        setIsPlaying(false);
+        setStoreIsPlaying(false);
+      }
+      return;
+    }
 
     const streamUrl = station.urlResolved || station.url;
 
@@ -140,6 +150,7 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
     setError(null);
     setIsLoading(true);
     setIsPlaying(false);
+    setStoreIsPlaying(false);
 
     const audio = audioRef.current;
     audio.pause();
@@ -148,7 +159,7 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
     tryPlayStream(streamUrl).catch((err) => {
       console.error("Stream play error:", err);
     });
-  }, [station, tryPlayStream]);
+  }, [station, tryPlayStream, setStoreIsPlaying]);
 
   // Handle play/pause
   const togglePlayPause = useCallback(() => {
@@ -157,16 +168,20 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
     if (isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
+      setStoreIsPlaying(false);
     } else {
       audioRef.current
         .play()
-        .then(() => setIsPlaying(true))
+        .then(() => {
+          setIsPlaying(true);
+          setStoreIsPlaying(true);
+        })
         .catch((err) => {
           console.error("Playback error:", err);
           setError("Failed to play audio");
         });
     }
-  }, [isPlaying]);
+  }, [isPlaying, setStoreIsPlaying]);
 
   // Handle volume change
   const handleVolumeChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,8 +207,14 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
     const audio = audioRef.current;
     if (!audio) return;
 
-    const handlePlay = () => setIsPlaying(true);
-    const handlePause = () => setIsPlaying(false);
+    const handlePlay = () => {
+      setIsPlaying(true);
+      setStoreIsPlaying(true);
+    };
+    const handlePause = () => {
+      setIsPlaying(false);
+      setStoreIsPlaying(false);
+    };
     const handleWaiting = () => setIsLoading(true);
     const handleCanPlay = () => setIsLoading(false);
     const handleError = () => {
@@ -215,7 +236,7 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
       audio.removeEventListener("canplay", handleCanPlay);
       audio.removeEventListener("error", handleError);
     };
-  }, []);
+  }, [setStoreIsPlaying]);
 
   // Retry function
   const handleRetry = useCallback(async () => {
@@ -270,52 +291,51 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
   const defaultCoverGradient = "from-primary/20 via-primary/10 to-accent/20";
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-2xl">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <div className="flex items-center gap-6">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-2xl">
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary/0 via-primary to-primary/0" />
+      <div className="container px-4 py-4">
+        <div className="flex items-center justify-between gap-6">
           {/* Station Cover Image */}
-          <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 shadow-lg ring-2 ring-border/50">
-            {station.favicon && !imageError ? (
-              <img
-                src={station.favicon}
-                alt={station.name}
-                className="w-full h-full object-cover"
-                onError={() => setImageError(true)}
-              />
-            ) : (
-              <div className={`w-full h-full bg-gradient-to-br ${defaultCoverGradient} flex items-center justify-center`}>
-                <Waves className="w-10 h-10 text-primary" />
-              </div>
-            )}
+          <div className="relative flex-shrink-0">
+            <div className="h-14 w-14 rounded-lg overflow-hidden bg-muted shadow-lg ring-2 ring-primary/20">
+              {station.favicon && !imageError ? (
+                <img
+                  src={station.favicon}
+                  alt={station.name}
+                  className="h-full w-full object-cover"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className={`w-full h-full bg-gradient-to-br ${defaultCoverGradient} flex items-center justify-center`}>
+                  <Waves className="w-8 h-8 text-primary" />
+                </div>
+              )}
+            </div>
             {isPlaying && (
-              <div className="absolute top-1 right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                <div className="w-1.5 h-1.5 bg-white rounded-full" />
-              </div>
+              <div className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-green-500 ring-2 ring-background animate-pulse" />
             )}
           </div>
 
           {/* Station Info */}
-          <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-base truncate text-foreground mb-0.5">
-              {station.name}
-            </h4>
-            <p className="text-sm text-muted-foreground truncate">
+          <div className="min-w-0 flex-1">
+            <h4 className="font-semibold text-sm truncate">{station.name}</h4>
+            <p className="text-xs text-muted-foreground truncate">
               {station.country || station.language || "Radio Station"}
             </p>
           </div>
 
           {/* Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {/* Previous Button */}
             {stations.length > 1 && (
               <Button
                 size="icon"
                 variant="ghost"
                 onClick={handlePrevious}
-                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 rounded-full hover:bg-accent transition-all hover:scale-110"
                 title="Previous station"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <SkipBack className="h-4 w-4" />
               </Button>
             )}
 
@@ -324,14 +344,14 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
               size="icon"
               onClick={togglePlayPause}
               disabled={isLoading}
-              className="h-12 w-12 rounded-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all"
+              className="h-11 w-11 rounded-full shadow-lg bg-primary hover:bg-primary/90 transition-all hover:scale-110"
             >
               {isLoading ? (
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               ) : isPlaying ? (
-                <Pause className="w-5 h-5 fill-current text-white" />
+                <Pause className="h-5 w-5 fill-current" />
               ) : (
-                <Play className="w-5 h-5 fill-current text-white ml-0.5" />
+                <Play className="h-5 w-5 fill-current" />
               )}
             </Button>
 
@@ -341,12 +361,17 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
                 size="icon"
                 variant="ghost"
                 onClick={handleNext}
-                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 rounded-full hover:bg-accent transition-all hover:scale-110"
                 title="Next station"
               >
-                <ChevronRight className="w-5 h-5" />
+                <SkipForward className="h-4 w-4" />
               </Button>
             )}
+
+            {/* Favorite Button - Mobile */}
+            <div className="md:hidden">
+              <FavoriteButton station={station} size="icon" />
+            </div>
 
             {/* Volume Control */}
             <div className="relative flex items-center">
@@ -359,7 +384,7 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
                   size="icon"
                   variant="ghost"
                   onClick={toggleMute}
-                  className="h-9 w-9 text-foreground hover:text-foreground"
+                  className="h-9 w-9 rounded-full hover:bg-accent transition-all hover:scale-110"
                 >
                   {isMuted || volume === 0 ? (
                     <VolumeX className="w-4 h-4" />
@@ -398,13 +423,18 @@ export function RadioPlayer({ station, onClose }: RadioPlayerProps) {
               </div>
             </div>
 
+            {/* Favorite Button - Desktop */}
+            <div className="hidden md:block">
+              <FavoriteButton station={station} size="icon" />
+            </div>
+
             {/* Close Button */}
             {onClose && (
               <Button
                 size="icon"
                 variant="ghost"
                 onClick={onClose}
-                className="h-9 w-9 text-muted-foreground hover:text-foreground"
+                className="h-9 w-9 rounded-full hover:bg-destructive/10 hover:text-destructive transition-all hover:scale-110"
               >
                 <X className="w-4 h-4" />
               </Button>
