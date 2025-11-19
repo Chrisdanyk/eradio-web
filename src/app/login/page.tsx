@@ -24,7 +24,7 @@ export default function LoginPage() {
 
     try {
       await login({ username: username.trim(), password });
-      router.push("/search");
+      router.push("/recommendations");
     } catch {
       // Error is already handled by useAuth hook and will be displayed
       // No need to set local error state

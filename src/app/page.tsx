@@ -17,7 +17,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/search");
+      router.push("/recommendations");
     }
   }, [isAuthenticated, router]);
 
@@ -38,9 +38,9 @@ export default function HomePage() {
               Discover
             </Link>
             {user && (
-              <Link href="/search" className="text-muted-foreground hover:text-foreground transition-colors" onClick={(e) => {
+              <Link href="/recommendations" className="text-muted-foreground hover:text-foreground transition-colors" onClick={(e) => {
                 e.preventDefault();
-                router.push("/search");
+                router.push("/recommendations");
               }}>
                 Browse
               </Link>
@@ -54,14 +54,14 @@ export default function HomePage() {
                   variant="ghost"
                   size="sm"
                   className="h-8 text-sm"
-                  onClick={() => router.push("/search")}
+                  onClick={() => router.push("/profile")}
                 >
                   Profile
                 </Button>
                 <Button
                   size="sm"
                   className="h-8 text-sm bg-primary hover:bg-primary/90"
-                  onClick={() => router.push("/search")}
+                  onClick={() => router.push("/recommendations")}
                 >
                   Listen Now
                 </Button>
@@ -104,7 +104,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   className="h-11 px-6 bg-primary hover:bg-primary/90 text-[15px] rounded-full font-normal"
-                  onClick={() => router.push("/search")}
+                  onClick={() => router.push("/recommendations")}
                 >
                   Start Listening
                 </Button>
@@ -112,7 +112,7 @@ export default function HomePage() {
                   size="lg"
                   variant="ghost"
                   className="h-11 px-6 text-[15px] text-primary rounded-full font-normal hover:bg-transparent"
-                  onClick={() => router.push("/search")}
+                  onClick={() => router.push("/favorites")}
                 >
                   My Favorites <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
@@ -351,7 +351,7 @@ export default function HomePage() {
           <Button
             size="lg"
             className="h-12 px-8 bg-primary hover:bg-primary/90 text-base rounded-full font-normal"
-            onClick={() => router.push(user ? '/search' : '/register')}
+            onClick={() => router.push(user ? '/recommendations' : '/register')}
           >
             {user ? 'Browse Stations' : 'Get Started'}
           </Button>

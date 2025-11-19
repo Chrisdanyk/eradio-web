@@ -8,9 +8,9 @@ import type { UserProfileResponse, UpdateProfileRequest } from "~/lib/types/api.
 import { ActionButton } from "~/components/ui/auth-button";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { User, Mail, Shield, Radio } from "lucide-react";
+import { User, Mail, Shield } from "lucide-react";
 import { extractErrorMessage } from "~/lib/utils/error-handler";
-import Link from "next/link";
+import { Navbar } from "~/components/layout/navbar";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -104,49 +104,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-background/70 border-b border-border/50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link href="/search" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <Radio className="w-5 h-5 text-primary" />
-              <span className="text-lg font-semibold tracking-tight text-foreground">Browse Stations</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-6">
-              <Link
-                href="/search"
-                className="text-sm font-medium transition-colors px-3 py-1.5 rounded-md text-foreground/70 hover:text-foreground hover:bg-muted/50"
-              >
-                Search
-              </Link>
-              <Link
-                href="/search"
-                className="text-sm font-medium transition-colors px-3 py-1.5 rounded-md text-foreground/70 hover:text-foreground hover:bg-muted/50"
-              >
-                Favorites
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/profile"
-              className="flex items-center gap-2 hover:opacity-80 transition-opacity group"
-            >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/20 transition-all ring-2 ring-primary/20 group-hover:ring-primary/40">
-                <User className="w-5 h-5 text-primary" />
-              </div>
-              <span className="hidden sm:block text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">
-                {user?.username}
-              </span>
-            </Link>
-            <Button variant="ghost" size="sm" onClick={logout} className="h-9 text-foreground/80 hover:text-foreground">
-              Logout
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content */}
+      <Navbar />
       <main className="max-w-4xl mx-auto p-8 pt-24">
         <h1 className="text-3xl font-semibold text-foreground mb-8">Edit Profile</h1>
 
