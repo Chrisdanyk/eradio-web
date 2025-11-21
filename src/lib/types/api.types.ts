@@ -22,6 +22,7 @@ export interface RegisterRequest {
 
 export interface AuthResponse {
   token: string;
+  refreshToken: string;
   type: string;
   userId: number;
   username: string;
@@ -39,6 +40,10 @@ export interface UserProfileResponse {
 export interface UpdateProfileRequest {
   fullName: string;
   email: string;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken: string;
 }
 
 // ==================== Station Types ====================
