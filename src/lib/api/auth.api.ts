@@ -8,7 +8,7 @@
  */
 
 import { apiClient } from "./client";
-import type { LoginRequest, RegisterRequest, AuthResponse, UserProfileResponse, UpdateProfileRequest } from "~/lib/types/api.types";
+import type { LoginRequest, RegisterRequest, AuthResponse, UserProfileResponse, UpdateProfileRequest, RefreshTokenRequest } from "~/lib/types/api.types";
 
 export const authApi = {
   /**
@@ -41,6 +41,15 @@ export const authApi = {
    */
   updateProfile: async (data: UpdateProfileRequest): Promise<UserProfileResponse> => {
     return apiClient.put<UserProfileResponse>("/api/auth/profile", data);
+  },
+
+  /**
+   * Refresh access token
+   */
+  refresh: async (data: RefreshTokenRequest): Promise<AuthResponse> => {
+    return apiClient.post<AuthResponse>("/api/auth/refresh", data, {
+      requiresAuth: false,
+    });
   },
 };
 

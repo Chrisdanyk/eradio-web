@@ -17,6 +17,7 @@
 import { env } from "~/env";
 import { storage } from "~/lib/utils/storage";
 import { ApiException, handleApiError } from "~/lib/utils/error-handler";
+import type { AuthResponse } from "~/lib/types/api.types";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
@@ -35,6 +36,8 @@ interface RequestOptions extends RequestInit {
  */
 class ApiClient {
   private baseUrl: string;
+  private isRefreshing = false;
+  private refreshPromise: Promise<void> | null = null;
 
   constructor() {
     this.baseUrl = env.NEXT_PUBLIC_API_URL;
@@ -114,6 +117,42 @@ class ApiClient {
 
       // Handle error responses
       if (!response.ok) {
+        // If 401 and we have a refresh token, try to refresh
+        // Don't try to refresh if we're already calling the refresh endpoint
+        if (
+          response.status === 401 &&
+          requiresAuth &&
+          storage.getRefreshToken() &&
+          !endpoint.includes("/api/auth/refresh")
+        ) {
+          // Wait for any ongoing refresh to complete
+          if (this.isRefreshing && this.refreshPromise) {
+            await this.refreshPromise;
+            // Retry the original request with new token
+            return this.request<T>(endpoint, options);
+          }
+
+          // Start refresh process
+          this.isRefreshing = true;
+          this.refreshPromise = this.handleTokenRefresh();
+
+          try {
+            await this.refreshPromise;
+            // Retry the original request with new token
+            return this.request<T>(endpoint, options);
+          } catch (refreshError) {
+            // Refresh failed, clear auth and throw original error
+            storage.clear();
+            throw new ApiException(
+              "Session expired. Please login again.",
+              response.status,
+            );
+          } finally {
+            this.isRefreshing = false;
+            this.refreshPromise = null;
+          }
+        }
+
         // Try to extract error message from various possible response formats
         const errorMessage =
           data.message ||
@@ -173,6 +212,43 @@ class ApiClient {
     options?: Omit<RequestOptions, "method" | "body">,
   ): Promise<T> {
     return this.request<T>(endpoint, { ...options, method: "DELETE" });
+  }
+
+  /**
+   * Handle token refresh
+   * Private method to refresh the access token
+   * This is called directly to avoid circular dependencies
+   */
+  private async handleTokenRefresh(): Promise<void> {
+    const refreshToken = storage.getRefreshToken();
+    if (!refreshToken) {
+      throw new Error("No refresh token available");
+    }
+
+    const url = `${this.baseUrl}/api/auth/refresh`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new ApiException(
+        errorData.message || "Failed to refresh token",
+        response.status,
+      );
+    }
+
+    const data: AuthResponse = await response.json();
+
+    // Store new tokens
+    storage.setToken(data.token);
+    if (data.refreshToken) {
+      storage.setRefreshToken(data.refreshToken);
+    }
   }
 }
 

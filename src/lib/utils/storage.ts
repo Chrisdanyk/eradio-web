@@ -8,6 +8,7 @@
  */
 
 const TOKEN_KEY = "eradio_token";
+const REFRESH_TOKEN_KEY = "eradio_refresh_token";
 const USER_KEY = "eradio_user";
 
 export const storage = {
@@ -36,6 +37,34 @@ export const storage = {
   removeToken: (): void => {
     if (typeof window !== "undefined") {
       localStorage.removeItem(TOKEN_KEY);
+    }
+  },
+
+  /**
+   * Save refresh token to localStorage
+   */
+  setRefreshToken: (refreshToken: string): void => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+    }
+  },
+
+  /**
+   * Get refresh token from localStorage
+   */
+  getRefreshToken: (): string | null => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem(REFRESH_TOKEN_KEY);
+    }
+    return null;
+  },
+
+  /**
+   * Remove refresh token from localStorage
+   */
+  removeRefreshToken: (): void => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
     }
   },
 
@@ -71,6 +100,7 @@ export const storage = {
   clear: (): void => {
     if (typeof window !== "undefined") {
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
     }
   },

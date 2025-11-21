@@ -48,18 +48,34 @@ export const authService = {
   },
 
   /**
-   * Set authentication data (token + user info)
+   * Set authentication data (token + refresh token + user info)
    *
    * This is a private helper method that encapsulates
    * the logic of storing auth data.
    */
   setAuthData(response: AuthResponse): void {
     storage.setToken(response.token);
+    if (response.refreshToken) {
+      storage.setRefreshToken(response.refreshToken);
+    }
     storage.setUser({
       userId: response.userId,
       username: response.username,
       email: response.email,
     });
+  },
+
+  /**
+   * Refresh access token using refresh token
+   */
+  async refreshToken(): Promise<AuthResponse> {
+    const refreshToken = storage.getRefreshToken();
+    if (!refreshToken) {
+      throw new Error("No refresh token available");
+    }
+    const response = await authApi.refresh({ refreshToken });
+    this.setAuthData(response);
+    return response;
   },
 
   /**
