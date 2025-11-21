@@ -1,0 +1,79 @@
+{
+  "name": "E-Radio - Discover Radio Stations",
+  "short_name": "E-Radio",
+  "description": "Discover and listen to radio stations from around the world",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": [
+    "music",
+    "entertainment"
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Search Stations",
+      "short_name": "Search",
+      "description": "Search for radio stations",
+      "url": "/search",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Favorites",
+      "short_name": "Favorites",
+      "description": "View your favorite stations",
+      "url": "/favorites",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Recommendations",
+      "short_name": "Recommendations",
+      "description": "Get AI-powered recommendations",
+      "url": "/recommendations",
+      "icons": [
+        {
+          "src": "/icon.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+}

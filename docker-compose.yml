@@ -1,0 +1,51 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: eradio-frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      # Next.js environment
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      # API URL
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+    env_file:
+      - .env.production
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000",
+        ]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    networks:
+      - eradio-network
+    # Security: read-only root filesystem where possible
+    read_only: false
+    # Security: no new privileges
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+networks:
+  eradio-network:
+    external: true
